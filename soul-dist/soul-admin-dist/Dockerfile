@@ -15,20 +15,22 @@
 # limitations under the License.
 
 FROM java:openjdk-8-jre-alpine
-
-WORKDIR /soul-admin
+        
+ARG APP_NAME
 
 ARG SPRING_PROFILES_ACTIVE
-ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-local}
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-h2}
 
-VOLUME /soul-admin/conf-ext
-
-ARG APP_NAME
-ENV SPRING_PROFILES_ACTIVE h2
 ENV LOCAL_PATH /opt/soul-admin
 
 ADD target/${APP_NAME}.tar.gz /opt
 RUN mv /opt/${APP_NAME} ${LOCAL_PATH}
 
+COPY entrypoint.sh ${LOCAL_PATH}/entrypoint.sh
+RUN chmod +x ${LOCAL_PATH}/entrypoint.sh
+
+WORKDIR /opt/soul-admin
+
 EXPOSE 9095
-ENTRYPOINT /bin/sh ${LOCAL_PATH}/bin/start.sh && tail -f ${LOCAL_PATH}/logs/soul-admin.out
+
+ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
