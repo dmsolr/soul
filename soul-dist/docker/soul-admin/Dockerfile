@@ -14,21 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM java:openjdk-8-jre-alpine
+FROM openjdk:8-alpine
 
 WORKDIR /soul-admin
 
+EXPOSE 9095/tcp
+
+COPY . /soul-admin/
+
+VOLUME /soul-admin/ext-conf
+
 ARG SPRING_PROFILES_ACTIVE
+
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-local}
 
-VOLUME /soul-admin/conf-ext
-
-ARG APP_NAME
-ENV SPRING_PROFILES_ACTIVE h2
-ENV LOCAL_PATH /opt/soul-admin
-
-ADD target/${APP_NAME}.tar.gz /opt
-RUN mv /opt/${APP_NAME} ${LOCAL_PATH}
-
-EXPOSE 9095
-ENTRYPOINT /bin/sh ${LOCAL_PATH}/bin/start.sh && tail -f ${LOCAL_PATH}/logs/soul-admin.out
+CMD ["sh", "-c", "bin/start.sh"]
